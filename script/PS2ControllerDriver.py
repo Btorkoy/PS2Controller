@@ -4,13 +4,8 @@ import os
 from pynput.keyboard import Key, Controller
 
 keyboard = Controller()
-def bool_to_updown(val):
-    if val:
-        return 'up'
-    else:
-        return 'down'
 
-delta_time = 0.05
+delta_time = 0.1
 
 ser = serial.Serial('COM3', 57600, timeout=0)
 
@@ -23,8 +18,8 @@ keys = [
     ['5',     False,  0.0],     #up
     ['6',     False,  0.0],     #select
     ['7',     False,  0.0],     #start
-    #['8',     False,  0.0],     #start
-    #['9',     False,  0.0],     #start
+    ['8',     False,  0.0],     #start
+    ['9',     False,  0.0],     #start
     # 1 - left V
     # 2 - left H
     # 3 - right V
@@ -47,4 +42,3 @@ while 1:
                 key[1] = not key[1]
                 key[2] = time.time()
         
-
