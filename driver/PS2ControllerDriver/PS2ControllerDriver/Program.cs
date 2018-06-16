@@ -26,7 +26,7 @@ namespace PS2ControllerDriver
             serialPort.ReadTimeout = 0;
             serialPort.Open();
             Controller controller = new Controller();
-            Key[] keys = new Key[8];
+            Key[] keys = new Key[16];
             VirtualKeyCode[] b = {
                 VirtualKeyCode.VK_0,
                 VirtualKeyCode.VK_1,
@@ -35,7 +35,15 @@ namespace PS2ControllerDriver
                 VirtualKeyCode.VK_4,
                 VirtualKeyCode.VK_5,
                 VirtualKeyCode.VK_6,
-                VirtualKeyCode.VK_7
+                VirtualKeyCode.VK_7,
+                VirtualKeyCode.VK_8,
+                VirtualKeyCode.VK_9,
+                VirtualKeyCode.VK_A,
+                VirtualKeyCode.VK_B,
+                VirtualKeyCode.VK_C,
+                VirtualKeyCode.VK_D,
+                VirtualKeyCode.VK_E,
+                VirtualKeyCode.VK_F,
             };
             for(int i = 0; i < b.Length; ++i)
             {
@@ -51,15 +59,17 @@ namespace PS2ControllerDriver
             {
                 try
                 {
-                    byte[] data = new byte[1] ;
-                    serialPort.Read(data, 0, 1);
+                    byte[] data = { 0, 0 };
+                    serialPort.Read(data, 0, 2);
                     BitArray bitArray = new BitArray(data);
-                    for (int i = 0; i < 8; ++i)
+                    for (int i = 0; i < b.Length; ++i)
                     {
                         var key = keys[i];
                         var now = DateTime.Now.Ticks;
                         if (bitArray[i] != key.pressed)
                         {
+                            Console.WriteLine(Convert.ToString(data[0], 2).PadLeft(8, '0'));
+                            Console.WriteLine(Convert.ToString(data[1], 2).PadLeft(8, '0'));
                             key.pressed = bitArray[i];
                             Console.WriteLine($"{key.key}, {key.pressed}");
                             if (key.pressed)

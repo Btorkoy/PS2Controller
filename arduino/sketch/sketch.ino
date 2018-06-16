@@ -19,18 +19,18 @@
 const uint16_t buttons[] = {
   PSB_PAD_UP   ,  
   PSB_PAD_RIGHT,  
-  PSB_PAD_LEFT , 
   PSB_PAD_DOWN ,  
+  PSB_PAD_LEFT , 
   PSB_CROSS    ,  
   PSB_SQUARE   ,  
   PSB_START    ,  
   PSB_SELECT   , 
- // PSB_TRIANGLE ,  
- // PSB_CIRCLE   ,  
- // PSB_L1       ,  
- // PSB_L2       ,  
- // PSB_R1       ,  
- // PSB_R2       ,  
+  PSB_TRIANGLE ,  
+  PSB_CIRCLE   ,  
+  PSB_L1       ,  
+  PSB_L2       ,  
+  PSB_R1       ,  
+  PSB_R2       ,  
 } ;
 PS2X ps2x; 
 int error = 0;
@@ -54,15 +54,20 @@ void loop() {
      You should call this at least once a second
    */  
   uint8_t stats[] = {0, 0};
+  //uint8_t stat = 0;
   if(error == 1)
     return; 
   ps2x.read_gamepad(false, vibrate); //read controller and set large motor to spin at 'vibrate' speed
   
   for( int i = 0; i < 14; ++i){
+  //for( int i = 0; i < 8; ++i){
     stats[i/8] <<= 1;
+    //stat <<= 1;
     if(ps2x.Button(buttons[i]))
       stats[i/8] += 1;
+     //stat += 1;
     delayMicroseconds(tick);
   }
   Serial.write(stats, 2);
+  //Serial.write(stat);
 }
