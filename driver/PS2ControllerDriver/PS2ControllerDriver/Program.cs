@@ -12,12 +12,14 @@ using WindowsInput.Native;
 
 namespace PS2ControllerDriver
 {
-    class Key
-    {
-        public VirtualKeyCode key;
-        public bool pressed = false;
-        public double time;
-    }
+    //class Button
+    //{
+    //    public string Name { get; set; }
+    //    public VirtualKeyCode Key { get; set; }
+    //    public bool Pressed { get; set; }
+    //    public double Time { get; set; }
+    //}
+
     class Program
     {
         static void Main(string[] args)
@@ -26,35 +28,6 @@ namespace PS2ControllerDriver
             serialPort.ReadTimeout = 0;
             serialPort.Open();
             Controller controller = new Controller();
-            Key[] keys = new Key[16];
-            VirtualKeyCode[] b = {
-                VirtualKeyCode.VK_0,
-                VirtualKeyCode.VK_1,
-                VirtualKeyCode.VK_2,
-                VirtualKeyCode.VK_3,
-                VirtualKeyCode.VK_4,
-                VirtualKeyCode.VK_5,
-                VirtualKeyCode.VK_6,
-                VirtualKeyCode.VK_7,
-                VirtualKeyCode.VK_8,
-                VirtualKeyCode.VK_9,
-                VirtualKeyCode.VK_A,
-                VirtualKeyCode.VK_B,
-                VirtualKeyCode.VK_C,
-                VirtualKeyCode.VK_D,
-                VirtualKeyCode.VK_E,
-                VirtualKeyCode.VK_F,
-            };
-            for(int i = 0; i < b.Length; ++i)
-            {
-                keys[i] = new Key
-                {
-                    key = b[i],
-                    pressed = false,
-                    time = 0.0
-                };
-            }
-            var vK = new WindowsInput.InputSimulator().Keyboard;
             while (true)
             {
                 try
@@ -62,58 +35,19 @@ namespace PS2ControllerDriver
                     byte[] data = { 0, 0 };
                     serialPort.Read(data, 0, 2);
                     BitArray bitArray = new BitArray(data);
-                    for (int i = 0; i < b.Length; ++i)
+                    for (int i = 0; i < controller.Buttons.Count; ++i)
                     {
-                        var key = keys[i];
-                        var now = DateTime.Now.Ticks;
-                        if (bitArray[i] != key.pressed)
+                        var button = controller.Buttons[i];
+                        if (bitArray[i] != button.Pressed)
                         {
                             Console.WriteLine(Convert.ToString(data[0], 2).PadLeft(8, '0'));
                             Console.WriteLine(Convert.ToString(data[1], 2).PadLeft(8, '0'));
-                            key.pressed = bitArray[i];
-                            Console.WriteLine($"{key.key}, {key.pressed}");
-                            if (key.pressed)
-                                vK.KeyDown(key.key);
-                            else
-                                vK.KeyUp(key.key);
-                            key.time = now;
+                            controller.HandleButton(button);
                         }
                     }
-                    //for (int i = 0; i < controller.Buttons.Count; ++i)
-                    //{
-                    //    var button = controller.Buttons.ElementAt(i).Value;
-                    //    var now = DateTime.Now.Ticks;
-                    //    //if (bitArray[i] != button.Pressed)
-                    //    //{
-                    //    //    if (button.Pressed) button.Release();
-                    //    //    else button.Press();
-                    //    //    button.Time = now;
-                    //    //}
-
-                    //    if (bitArray[i] == button.Pressed)
-                    //    {
-                            
-                    //            Console.WriteLine(Convert.ToString(data[0], 2).PadLeft(8, '0'));
-                            
-                    //        if (button.Pressed) SendKeys.SendWait(button.Key);
-                    //        button.Pressed = !button.Pressed;
-                    //        button.Time = now;
-                    //    }
-                    //    //    controller.DownButton(button);
-                    //    //else controller.UpButton(button);
-                    //}
                 }
                 catch (TimeoutException) { }
             }
         }
-
-        public static void GetPressedKeysList(byte[] data, List<string> buttons)
-        {
-            
-        }
     }
-
-   
-
-    
 }

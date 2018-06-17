@@ -7,79 +7,53 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindowsInput;
+using WindowsInput.Native;
 
 namespace PS2ControllerDriver
 {
-    public class Config
+    class Button
     {
-        public Dictionary<string, string> Mapping;
+        public string Name { get; set; }
+        public VirtualKeyCode Key { get; set; }
+        public bool Pressed { get; set; }
+        public double Time { get; set; }
+
+        public override string ToString() {
+            var pr = Pressed ? "down" : "up";
+            return $@"Button: {Name}, Key: {Key}, {pr} at {Time}"; }
     }
+
     class Controller
     {
-        public readonly Dictionary<string, Button> Buttons = new Dictionary<string, Button>();
-        public const int delay = 1000000;
+        public List<Button> Buttons = new List<Button>();
+        private InputSimulator inputSimulator = new WindowsInput.InputSimulator();
 
         public Controller()
         {
-            var config = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "config.json")));
-            foreach (var el in config)
+            var config = JsonConvert.DeserializeObject<Dictionary<string, VirtualKeyCode>>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "config.json")));
+            for (int i = 0; i < config.Count; ++i)
             {
-                var b = el.Key;
-                Console.WriteLine(b);
-                this.Buttons.Add(b, new Button
+                this.Buttons.Add(new Button
                 {
-                    Name = el.Key,
-                    Key = el.Value,
+                    Name = config.ElementAt(i).Key,
+                    Key = config.ElementAt(i).Value,
                     Pressed = false,
-                    Time = DateTime.Now.Ticks
+                    Time = 0.0
                 });
             }
+            Console.WriteLine("Virtual Controller intialized");
         }
 
         public void HandleButton(Button button)
         {
             var now = DateTime.Now.Ticks;
-           // if((now - button.Time) > delay)
+            button.Pressed = !button.Pressed;
+            Console.WriteLine(button);
+            if (button.Pressed)
+                inputSimulator.Keyboard.KeyDown(button.Key);
+            else
+                inputSimulator.Keyboard.KeyUp(button.Key);
+            button.Time = now;
         } 
-        public void DownButton(Button button)
-        {
-            var now = DateTime.Now.Ticks;
-           //if (!button.Pressed && (now - button.Time) > delay)
-            {
-                Console.WriteLine($"Button {button.Name} pressed once! Last: {button.Time}; Now: {now}");
-                button.Down();
-                button.Time = now;
-            }
-            //else if ((now - button.Time) > delay)
-            //{
-            //    Console.WriteLine($"Button {button.Name} hold! Last: {button.Time}; Now: {now}. {now - button.Time}");
-            //    button.Down();
-            //}
-        }
-
-        public void UpButton(Button button)
-        {
-            if (button.Pressed) button.Pressed = false;
-        }
-
-        public class Button
-        {
-            public string Name = "";
-            public string Key = "";
-            public bool Pressed = false;
-            public long Time;
-
-            public void Down() {
-                this.Pressed = true;
-                new InputSimulator().Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.VK_6);
-                SendKeys.SendWait(this.Key);
-            }
-
-            public void Up() => this.Pressed = false;
-
-            public override string ToString() =>
-                $"Button: {Name}, Key: {Key}, Pressed: {Pressed} at {Time}";
-        }
-
     }
 }
