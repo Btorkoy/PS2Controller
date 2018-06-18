@@ -1,18 +1,20 @@
 ﻿{
-  "Select": "VK_0",
-  "Start": "VK_1",
-  "Square": "VK_E",
-  "Cross": "VK_F",
+  "Select": "VK_N",
+  "Start": "RETURN",
+  "Square": "VK_G",
+  "Cross": "VK_H",
   "Left": "VK_A",
   "Down": "VK_S",
   "Right": "VK_D",
   "Up": "VK_W",
-  "R2": "VK_8",
-  "R1": "VK_9",
-  "L2": "VK_A",
-  "L1": "VK_B",
-  "Circle": "VK_G",
-  "Triangle": "VK_R"
+  "R3": "VK_C",
+  "R2": "VK_E",
+  "R1": "RBUTTON",
+  "L3": "VK_X",
+  "L2": "VK_Q",
+  "L1": "LBUTTON",
+  "Circle": "VK_Y",
+  "Triangle": "VK_T"
 }
 /*
         //     Left mouse button

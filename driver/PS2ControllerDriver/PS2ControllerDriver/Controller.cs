@@ -23,10 +23,44 @@ namespace PS2ControllerDriver
             return $@"Button: {Name}, Key: {Key}, {pr} at {Time}"; }
     }
 
+    class Stick
+    {
+        int range = 20;               // output range of X or Y movement
+        int threshold;      // resting threshold
+        int center;
+        IMouseSimulator MouseSimulator = new InputSimulator().Mouse;
+
+        public Stick()
+        {
+            this.threshold = range / 4;
+            this.center = range / 2;
+        }
+        public void MoveMouse(int x, int y)
+        {
+            x = (x * range) / 255;
+            y = (y * range) / 255;
+            int distanceX = x - center;
+            int distanceY = y - center;
+            if(Math.Abs(distanceX) < threshold) distanceX = 0;
+            if(Math.Abs(distanceY) < threshold) distanceY = 0;
+            if(distanceX != 0 || distanceY != 0)
+            {
+                Console.WriteLine($"Stick moved x: {distanceX}, y: {distanceY}");
+                var stepX = distanceX / 5; 
+                var stepY = distanceY / 5;
+                for ( int i = 0; i < 5; ++i)
+                {
+                }
+                this.MouseSimulator.MoveMouseBy(distanceX, distanceY);
+            }
+        }
+    }
+
     class Controller
     {
         public List<Button> Buttons = new List<Button>();
         private InputSimulator inputSimulator = new WindowsInput.InputSimulator();
+        public Stick LeftSticker = new Stick();
 
         public Controller()
         {
@@ -41,6 +75,7 @@ namespace PS2ControllerDriver
                     Time = 0.0
                 });
             }
+
             Console.WriteLine("Virtual Controller intialized");
         }
 
@@ -49,11 +84,22 @@ namespace PS2ControllerDriver
             var now = DateTime.Now.Ticks;
             button.Pressed = !button.Pressed;
             Console.WriteLine(button);
-            if (button.Pressed)
-                inputSimulator.Keyboard.KeyDown(button.Key);
-            else
-                inputSimulator.Keyboard.KeyUp(button.Key);
+            switch (button.Key)
+            {
+                case VirtualKeyCode.LBUTTON:
+                    if (button.Pressed) inputSimulator.Mouse.LeftButtonDown();
+                    else inputSimulator.Mouse.LeftButtonUp();
+                    break;
+                case VirtualKeyCode.RBUTTON:
+                    if (button.Pressed) inputSimulator.Mouse.RightButtonDown();
+                    else inputSimulator.Mouse.RightButtonUp();
+                    break;
+                default:
+                    if (button.Pressed) inputSimulator.Keyboard.KeyDown(button.Key);
+                    else inputSimulator.Keyboard.KeyUp(button.Key);
+                    break;
+            }
             button.Time = now;
-        } 
+        }
     }
 }
