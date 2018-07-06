@@ -14,6 +14,7 @@
 #define rumble      false
 PS2X ps2x; 
 
+
 const uint16_t buttons[] = {
   PSB_PAD_UP   ,  
   PSB_PAD_RIGHT,  
@@ -32,15 +33,16 @@ const uint16_t buttons[] = {
   PSB_R2       ,  
   PSB_R3       ,
 } ;
+
 int error = 0;
 byte type = 0;
 byte vibrate = 0;
-const int tick = 1000;
-
+const int tick = 2000;
 void setup(){
- 
+  digitalWrite(13, LOW);
   Serial.begin(57600);   
   error = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT, pressures, rumble); 
+  delay(5000);
 }
 
 void loop() {
@@ -53,8 +55,26 @@ void loop() {
     if(ps2x.Button(buttons[i]))
       stats[i/8] += 1;
   }
-  stats[2] = ps2x.Analog(PSS_LX);
-  stats[3] = ps2x.Analog(PSS_LY);
+  //stats[2] = ps2x.Analog(PSS_LX);
+  //stats[3] = ps2x.Analog(PSS_LY);
+  stats[2] = getStickAxis(PSS_LX);
+  stats[3] = getStickAxis(PSS_LY);
+  if(stats[0] != 0 || stats[1] != 0)
+    digitalWrite(13, HIGH);
+  else 
+    digitalWrite(13, LOW);
   Serial.write(stats, 4);
   delayMicroseconds(tick);
+}
+
+int range = 20;               // output range of X or Y movement
+int threshold = range / 4;
+int center = range / 2; // resting threshold
+int distance;
+int getStickAxis(int axis){
+  int coordinate = ps2x.Analog(axis);
+  byte reading = (coordinate * range)/255;
+  distance = reading - center;
+  // if(abs(distance) < threshold) distance = 0;
+  return reading;
 }

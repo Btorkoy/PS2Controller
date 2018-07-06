@@ -12,19 +12,11 @@ using WindowsInput.Native;
 
 namespace PS2ControllerDriver
 {
-    //class Button
-    //{
-    //    public string Name { get; set; }
-    //    public VirtualKeyCode Key { get; set; }
-    //    public bool Pressed { get; set; }
-    //    public double Time { get; set; }
-    //}
-
     class Program
     {
         static void Main(string[] args)
         {
-            SerialPort serialPort = new SerialPort("COM3", 57600);
+            SerialPort serialPort = new SerialPort("COM5", 57600);
             serialPort.ReadTimeout = 0;
             serialPort.Open();
             Controller controller = new Controller();
@@ -34,7 +26,7 @@ namespace PS2ControllerDriver
                 {
                     byte[] data = { 0, 0, 0, 0 };
                     serialPort.Read(data, 0, 4);
-                    if(data[0] != 0 || data[1] != 0)
+                    if(data[0] != 0 || data[1] != 0 )
                     {
                         Console.WriteLine(Convert.ToString(data[0], 2).PadLeft(8, '0'));
                         Console.WriteLine(Convert.ToString(data[1], 2).PadLeft(8, '0'));
@@ -44,7 +36,7 @@ namespace PS2ControllerDriver
                     }
                     BitArray bitArray = new BitArray(new byte[] { data[0], data[1] });
                     int x = data[2], y = data[3];
-                    if (x != 0 || y != 0)
+                    //if (x != 0 || y != 0)
                         controller.LeftSticker.MoveMouse(x, y);
 
                     for (int i = 0; i < controller.Buttons.Count; ++i)

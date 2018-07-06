@@ -16,7 +16,7 @@ namespace PS2ControllerDriver
         public string Name { get; set; }
         public VirtualKeyCode Key { get; set; }
         public bool Pressed { get; set; }
-        public double Time { get; set; }
+        public DateTime Time { get; set; }
 
         public override string ToString() {
             var pr = Pressed ? "down" : "up";
@@ -37,20 +37,15 @@ namespace PS2ControllerDriver
         }
         public void MoveMouse(int x, int y)
         {
-            x = (x * range) / 255;
-            y = (y * range) / 255;
+            //x = (x * range) / 255;
+            //y = (y * range) / 255;
             int distanceX = x - center;
             int distanceY = y - center;
-            if(Math.Abs(distanceX) < threshold) distanceX = 0;
-            if(Math.Abs(distanceY) < threshold) distanceY = 0;
-            if(distanceX != 0 || distanceY != 0)
+            if (Math.Abs(distanceX) < threshold) distanceX = 0;
+            if (Math.Abs(distanceY) < threshold) distanceY = 0;
+            if (distanceX != 0 || distanceY != 0)
             {
                 Console.WriteLine($"Stick moved x: {distanceX}, y: {distanceY}");
-                var stepX = distanceX / 5; 
-                var stepY = distanceY / 5;
-                for ( int i = 0; i < 5; ++i)
-                {
-                }
                 this.MouseSimulator.MoveMouseBy(distanceX, distanceY);
             }
         }
@@ -72,7 +67,7 @@ namespace PS2ControllerDriver
                     Name = config.ElementAt(i).Key,
                     Key = config.ElementAt(i).Value,
                     Pressed = false,
-                    Time = 0.0
+                    Time = DateTime.MinValue
                 });
             }
 
@@ -81,7 +76,7 @@ namespace PS2ControllerDriver
 
         public void HandleButton(Button button)
         {
-            var now = DateTime.Now.Ticks;
+            var now = DateTime.Now;
             button.Pressed = !button.Pressed;
             Console.WriteLine(button);
             switch (button.Key)
