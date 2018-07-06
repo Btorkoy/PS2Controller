@@ -50,15 +50,15 @@ void loop() {
     return; 
   ps2x.read_gamepad(false, vibrate); 
   uint8_t stats[] = {0, 0, 0, 0};
+  stats[0] = getStickAxis(PSS_LX);
+  stats[1] = getStickAxis(PSS_LY);
   for( int i = 0; i < 16; ++i){
-    stats[i/8] <<= 1;
+    stats[2+i/8] <<= 1;
     if(ps2x.Button(buttons[i]))
-      stats[i/8] += 1;
+      stats[2+i/8] += 1;
   }
   //stats[2] = ps2x.Analog(PSS_LX);
   //stats[3] = ps2x.Analog(PSS_LY);
-  stats[2] = getStickAxis(PSS_LX);
-  stats[3] = getStickAxis(PSS_LY);
   if(stats[0] != 0 || stats[1] != 0)
     digitalWrite(13, HIGH);
   else 
@@ -71,7 +71,9 @@ int range = 20;               // output range of X or Y movement
 int threshold = range / 4;
 int center = range / 2; // resting threshold
 int distance;
-int getStickAxis(int axis){
+
+int getStickAxis(int axis)
+{
   int coordinate = ps2x.Analog(axis);
   byte reading = (coordinate * range)/255;
   distance = reading - center;
