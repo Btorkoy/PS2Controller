@@ -33,11 +33,10 @@ const uint16_t buttons[] = {
   PSB_R2       ,  
   PSB_R3       ,
 } ;
-
 int error = 0;
-byte type = 0;
 byte vibrate = 0;
-const int tick = 2000;
+const int tick = 1000;
+
 void setup(){
   digitalWrite(13, LOW);
   Serial.begin(57600);   
@@ -50,16 +49,14 @@ void loop() {
     return; 
   ps2x.read_gamepad(false, vibrate); 
   uint8_t stats[] = {0, 0, 0, 0};
-  stats[0] = getStickAxis(PSS_LX);
-  stats[1] = getStickAxis(PSS_LY);
+  stats[0] = getStickAxis(PSS_LX, PSS_LY);
+  stats[1] = getStickAxis(PSS_RX, PSS_RY);
   for( int i = 0; i < 16; ++i){
     stats[2+i/8] <<= 1;
     if(ps2x.Button(buttons[i]))
       stats[2+i/8] += 1;
   }
-  //stats[2] = ps2x.Analog(PSS_LX);
-  //stats[3] = ps2x.Analog(PSS_LY);
-  if(stats[0] != 0 || stats[1] != 0)
+  if(stats[2] != 0 || stats[3] != 0)
     digitalWrite(13, HIGH);
   else 
     digitalWrite(13, LOW);
@@ -67,16 +64,14 @@ void loop() {
   delayMicroseconds(tick);
 }
 
-int range = 20;               // output range of X or Y movement
-int threshold = range / 4;
-int center = range / 2; // resting threshold
-int distance;
-
-int getStickAxis(int axis)
+int range = 12;               
+int getStickAxis(byte X, byte Y)
 {
-  int coordinate = ps2x.Analog(axis);
-  byte reading = (coordinate * range)/255;
-  distance = reading - center;
-  // if(abs(distance) < threshold) distance = 0;
-  return reading;
+  int coordinateX = ps2x.Analog(X);
+  int coordinateY = ps2x.Analog(Y);
+  byte x = (coordinateX * range)/255;
+  byte y = (coordinateY * range)/255;
+  x = x << 4;
+  int c = x + y;
+  return c;
 }

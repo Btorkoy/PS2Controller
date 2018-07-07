@@ -25,22 +25,23 @@ namespace PS2ControllerDriver
 
     class Stick
     {
-        int range = 20;               // output range of X or Y movement
+        int range = 12;               // output range of X or Y movement
         int threshold;      // resting threshold
         int center;
         IMouseSimulator MouseSimulator = new InputSimulator().Mouse;
 
         public Stick()
         {
-            this.threshold = range / 4;
+            this.threshold = range / 3;
             this.center = range / 2;
         }
-        public void MoveMouse(int x, int y)
+        public void Move(int x, int y)
         {
             //x = (x * range) / 255;
             //y = (y * range) / 255;
             int distanceX = x - center;
             int distanceY = y - center;
+
             if (Math.Abs(distanceX) < threshold) distanceX = 0;
             if (Math.Abs(distanceY) < threshold) distanceY = 0;
             if (distanceX != 0 || distanceY != 0)
@@ -53,9 +54,10 @@ namespace PS2ControllerDriver
 
     class Controller
     {
-        public List<Button> Buttons = new List<Button>();
         private InputSimulator inputSimulator = new WindowsInput.InputSimulator();
+        public List<Button> Buttons = new List<Button>();
         public Stick LeftSticker = new Stick();
+        public Stick RightSticker = new Stick();
 
         public Controller()
         {
@@ -71,7 +73,7 @@ namespace PS2ControllerDriver
                 });
             }
 
-            Console.WriteLine("Virtual Controller intialized");
+            Console.WriteLine("Virtual Controller initialized");
         }
 
         public void HandleButton(Button button)

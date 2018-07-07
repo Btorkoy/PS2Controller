@@ -16,33 +16,40 @@ namespace PS2ControllerDriver
     {
         static void Main(string[] args)
         {
-            SerialPort serialPort = new SerialPort("COM5", 57600);
-            serialPort.ReadTimeout = 0;
+            SerialPort serialPort = new SerialPort()
+            {
+                BaudRate = 57600,
+                PortName = "COM5",
+                ReadTimeout = 0
+            };
             serialPort.Open();
             Controller controller = new Controller();
             while (true)
             {
                 try
                 {
-                    int l_stickX = 0;
-                    int l_stickY = 1;
+                    int leftStick = 0;
+                    int rightStick = 1;
                     int buttons1 = 2;
                     int buttons2 = 3;
                     byte[] data = { 0, 0, 0, 0 };
                     serialPort.Read(data, 0, 4);
                     if(data[buttons1] != 0 || data[buttons2] != 0 )
                     {
+                        Console.WriteLine(Convert.ToString(data[leftStick], 2).PadLeft(8, '0'));
+                        Console.WriteLine(Convert.ToString(data[rightStick], 2).PadLeft(8, '0'));
                         Console.WriteLine(Convert.ToString(data[buttons1], 2).PadLeft(8, '0'));
                         Console.WriteLine(Convert.ToString(data[buttons2], 2).PadLeft(8, '0'));
-                        Console.WriteLine(Convert.ToString(data[l_stickX], 2).PadLeft(8, '0'));
-                        Console.WriteLine(Convert.ToString(data[l_stickY], 2).PadLeft(8, '0'));
                         Console.WriteLine();
                     }
-                    BitArray bitArray = new BitArray(new byte[] { data[buttons1], data[buttons2] });
-                    int x = data[l_stickX], y = data[l_stickY];
-                    //if (x != 0 || y != 0)
-                        controller.LeftSticker.MoveMouse(x, y);
+                    int leftX = data[leftStick] >> 4;
+                    int leftY = data[leftStick] & 15;
+                    int rightX = data[rightStick] >> 4;
+                    int rightY = data[rightStick] & 15;
+                    controller.LeftSticker.Move(leftX, leftY);
+                    controller.RightSticker.Move(rightX, rightY);
 
+                    BitArray bitArray = new BitArray(new byte[] { data[buttons1], data[buttons2] });
                     for (int i = 0; i < controller.Buttons.Count; ++i)
                     {
                         var button = controller.Buttons[i];
